@@ -60,7 +60,7 @@ app.MapGet("/", async () =>
     .WithName("Index")
     .WithOpenApi();
 
-// Retrieve the set of hotels from the database. Modified by Edwin
+// Retrieve the set of hotels from the database. Modified by Edwin.
 app.MapGet("/Hotels", async () => 
 {
     var hotels = await app.Services.GetRequiredService<IDatabaseService>().GetHotels();

@@ -99,4 +99,97 @@ public class DatabaseService : IDatabaseService
 
         return bookings;
     }
+
+    /// <summary>
+    /// will return all bookings that do not have associated hotel rooms.
+    /// </summary>
+    public async Task<IEnumerable<Booking>> GetBookingsMissingHotelRooms()
+    {
+        var sql = """
+            SELECT
+                b.BookingID,
+                b.CustomerID,
+                b.HotelID,
+                b.StayBeginDate,
+                b.StayEndDate,
+                b.NumberOfGuests
+            FROM dbo.Booking b
+            WHERE NOT EXISTS
+                (
+                    SELECT 1
+                    FROM dbo.BookingHotelRoom h
+                    WHERE
+                        b.BookingID = h.BookingID
+                );
+            """;
+        using var conn = new SqlConnection(
+            connectionString: Environment.GetEnvironmentVariable("SQLAZURECONNSTR_ContosoSuites")!
+        );
+        conn.Open();
+        using var cmd = new SqlCommand(sql, conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+        var bookings = new List<Booking>();
+        while (await reader.ReadAsync())
+        {
+            bookings.Add(new Booking
+            {
+                BookingID = reader.GetInt32(0),
+                CustomerID = reader.GetInt32(1),
+                HotelID = reader.GetInt32(2),
+                StayBeginDate = reader.GetDateTime(3),
+                StayEndDate = reader.GetDateTime(4),
+                NumberOfGuests = reader.GetInt32(5)
+            });
+        }
+        conn.Close();
+
+        return bookings;
+    }
+
+    /// <summary>
+    ///  will return all bookings with more than one hotel room
+    /// </summary>
+    public async Task<IEnumerable<Booking>> GetBookingsWithMultipleHotelRooms()
+    {
+        var sql = """
+            SELECT
+                b.BookingID,
+                b.CustomerID,
+                b.HotelID,
+                b.StayBeginDate,
+                b.StayEndDate,
+                b.NumberOfGuests
+            FROM dbo.Booking b
+            WHERE
+                (
+                    SELECT COUNT(1)
+                    FROM dbo.BookingHotelRoom h
+                    WHERE
+                        b.BookingID = h.BookingID
+                ) > 1;
+            """;
+        using var conn = new SqlConnection(
+            connectionString: Environment.GetEnvironmentVariable("SQLAZURECONNSTR_ContosoSuites")!
+        );
+        conn.Open();
+        using var cmd = new SqlCommand(sql, conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+        var bookings = new List<Booking>();
+        while (await reader.ReadAsync())
+        {
+            bookings.Add(new Booking
+            {
+                BookingID = reader.GetInt32(0),
+                CustomerID = reader.GetInt32(1),
+                HotelID = reader.GetInt32(2),
+                StayBeginDate = reader.GetDateTime(3),
+                StayEndDate = reader.GetDateTime(4),
+                NumberOfGuests = reader.GetInt32(5)
+            });
+        }
+        conn.Close();
+
+        return bookings;
+    }
+
 }

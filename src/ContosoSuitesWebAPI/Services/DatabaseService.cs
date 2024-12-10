@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
 using ContosoSuitesWebAPI.Entities;
+using Microsoft.SemanticKernel;
+using System.ComponentModel;
 
 namespace ContosoSuitesWebAPI.Services;
 
@@ -12,6 +14,8 @@ public class DatabaseService : IDatabaseService
     /// <summary>
     /// Get all hotels from the database.
     /// </summary>
+    [KernelFunction]
+    [Description("Get all hotels.")]
     public async Task<IEnumerable<Hotel>> GetHotels()
     {
         var sql = "SELECT HotelID, HotelName, City, Country FROM dbo.Hotel";
@@ -40,7 +44,11 @@ public class DatabaseService : IDatabaseService
     /// <summary>
     /// Get a specific hotel from the database.
     /// </summary>
-    public async Task<IEnumerable<Booking>> GetBookingsForHotel(int hotelId)
+    [KernelFunction]
+    [Description("Get all bookings for a single hotel.")]
+    public async Task<IEnumerable<Booking>> GetBookingsForHotel(
+        [Description("The ID of the hotel")] int hotelId
+        )
     {
         var sql = "SELECT BookingID, CustomerID, HotelID, StayBeginDate, StayEndDate, NumberOfGuests FROM dbo.Booking WHERE HotelID = @HotelID";
         using var conn = new SqlConnection(
@@ -71,7 +79,10 @@ public class DatabaseService : IDatabaseService
     /// <summary>
     /// Get bookings for a specific hotel that are after a specified date.
     /// </summary>
-    public async Task<IEnumerable<Booking>> GetBookingsByHotelAndMinimumDate(int hotelId, DateTime dt)
+    [KernelFunction]
+    [Description("Get bookings for a specific hotel that are after a specified date.")]
+    public async Task<IEnumerable<Booking>> GetBookingsByHotelAndMinimumDate(
+    [Description("The ID of the hotel")] int hotelId, [Description("The specified date")] DateTime dt)
     {
         var sql = "SELECT BookingID, CustomerID, HotelID, StayBeginDate, StayEndDate, NumberOfGuests FROM dbo.Booking WHERE HotelID = @HotelID AND StayBeginDate >= @StayBeginDate";
         using var conn = new SqlConnection(
@@ -103,6 +114,8 @@ public class DatabaseService : IDatabaseService
     /// <summary>
     /// will return all bookings that do not have associated hotel rooms.
     /// </summary>
+    [KernelFunction]
+    [Description("Get all bookings that do not have associated hotel rooms.")]
     public async Task<IEnumerable<Booking>> GetBookingsMissingHotelRooms()
     {
         var sql = """
@@ -149,6 +162,8 @@ public class DatabaseService : IDatabaseService
     /// <summary>
     ///  will return all bookings with more than one hotel room
     /// </summary>
+    [KernelFunction]
+    [Description("Get all bookings with more than one hotel room.")]
     public async Task<IEnumerable<Booking>> GetBookingsWithMultipleHotelRooms()
     {
         var sql = """

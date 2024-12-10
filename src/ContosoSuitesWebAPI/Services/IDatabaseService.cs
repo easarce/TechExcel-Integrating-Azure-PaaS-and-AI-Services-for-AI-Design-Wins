@@ -9,8 +9,4 @@ public interface IDatabaseService
     Task<IEnumerable<Booking>> GetBookingsByHotelAndMinimumDate(int hotelId, DateTime dt);
     Task<IEnumerable<Booking>> GetBookingsMissingHotelRooms();
     Task<IEnumerable<Booking>> GetBookingsWithMultipleHotelRooms();
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 5ecb181 (commit changes)

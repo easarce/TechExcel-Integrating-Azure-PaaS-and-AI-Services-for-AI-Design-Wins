@@ -207,8 +207,4 @@ public class DatabaseService : IDatabaseService
         return bookings;
     }
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 5ecb181 (commit changes)
